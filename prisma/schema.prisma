@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestionMode {
+  FAMILY
+  DEEP_DIVE
+}
+
+model Question {
+  id        String       @id @default(cuid())
+  optionA   String
+  optionB   String
+  votesA    Int          @default(0)
+  votesB    Int          @default(0)
+  isActive  Boolean      @default(true)
+  mode      QuestionMode?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
+
+  @@index([isActive, mode, createdAt])
+}

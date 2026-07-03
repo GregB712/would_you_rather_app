@@ -1,0 +1,32 @@
+# Python generated files
+__pycache__/
+*.py[cod]
+
+#Local agent/tooling metadata
+.agents/
+.codex/
+
+# Local deploy/tool cache
+.vercel/
+.turbo/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Data related
+data/archive/
+data/*.json
+
+# Other
+node_modules
+.next
+out
+dist
+coverage
+.env
+.env*.local
+*.tsbuildinfo

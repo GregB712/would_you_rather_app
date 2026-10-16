@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { isPlayMode } from "@/lib/gameModes";
 import { prisma } from "@/lib/prisma";
-import type { PlayMode } from "@/types/game";
+import type { PlayMode, Question } from "@/types/game";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,55 +21,39 @@ function parseExcludedIds(value: string | null) {
     .slice(0, MAX_EXCLUDED_IDS);
 }
 
-function getWhere(mode: PlayMode, excludedIds: string[]) {
-  const where: Prisma.QuestionWhereInput = {
-    isActive: true
-  };
+async function queryRandomQuestion(mode: PlayMode, excludedIds: string[]) {
+  const conditions = [Prisma.sql`"isActive" = true`];
 
   if (mode !== "RANDOM") {
-    where.mode = mode;
+    conditions.push(Prisma.sql`"mode" = ${mode}::"QuestionMode"`);
   }
 
   if (excludedIds.length > 0) {
-    where.id = {
-      notIn: excludedIds
-    };
+    conditions.push(Prisma.sql`"id" NOT IN (${Prisma.join(excludedIds)})`);
   }
 
-  return where;
+  // A single query picks a random matching row, halving the per-question
+  // round trips compared to a separate count + skip. random() sorts only the
+  // already-filtered (isActive/mode) subset, which stays small for this app.
+  const rows = await prisma.$queryRaw<Question[]>(Prisma.sql`
+    SELECT "id", "optionA", "optionB", "votesA", "votesB", "mode"
+    FROM "Question"
+    WHERE ${Prisma.join(conditions, " AND ")}
+    ORDER BY random()
+    LIMIT 1
+  `);
+
+  return rows[0] ?? null;
 }
 
 async function getRandomQuestion(mode: PlayMode, excludedIds: string[]) {
-  const where = getWhere(mode, excludedIds);
-  let count = await prisma.question.count({ where });
-  let effectiveWhere: Prisma.QuestionWhereInput = where;
+  const question = await queryRandomQuestion(mode, excludedIds);
 
-  if (count === 0 && excludedIds.length > 0) {
-    effectiveWhere = getWhere(mode, []);
-    count = await prisma.question.count({ where: effectiveWhere });
+  if (!question && excludedIds.length > 0) {
+    return queryRandomQuestion(mode, []);
   }
 
-  if (count === 0) {
-    return null;
-  }
-
-  const skip = Math.floor(Math.random() * count);
-
-  return prisma.question.findFirst({
-    where: effectiveWhere,
-    orderBy: {
-      createdAt: "asc"
-    },
-    skip,
-    select: {
-      id: true,
-      optionA: true,
-      optionB: true,
-      votesA: true,
-      votesB: true,
-      mode: true
-    }
-  });
+  return question;
 }
 
 export async function GET(request: Request) {

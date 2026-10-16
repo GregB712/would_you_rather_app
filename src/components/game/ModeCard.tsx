@@ -22,7 +22,7 @@ const eyebrowLabels = {
 export function ModeCard({ mode, accent, onSelect }: ModeCardProps) {
   return (
     <button
-      className="group flex min-h-64 w-full flex-col justify-between rounded-lg border-2 border-[#111111] bg-white p-6 text-left shadow-[10px_10px_0_#111111] transition hover:-translate-y-1 hover:shadow-[13px_14px_0_#111111] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#f5c84c] active:translate-y-1 active:shadow-[6px_6px_0_#111111]"
+      className="group flex min-h-56 w-full flex-col justify-between rounded-lg border-2 border-[#111111] bg-white p-6 text-left shadow-[6px_6px_0_#111111] transition hover:-translate-y-1 hover:shadow-[13px_14px_0_#111111] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#f5c84c] active:translate-y-1 active:shadow-[4px_4px_0_#111111] sm:min-h-64 sm:shadow-[10px_10px_0_#111111] sm:active:shadow-[6px_6px_0_#111111]"
       onClick={() => onSelect(mode)}
       type="button"
     >

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { EmptyState } from "@/components/game/EmptyState";
 import { ErrorState } from "@/components/game/ErrorState";
 import { GameHeader } from "@/components/game/GameHeader";
@@ -59,6 +61,29 @@ async function readApiError(response: Response) {
 }
 
 export default function Home() {
+  const { isLoaded, isSignedIn } = useUser();
+
+  // Signed-out players can opt to play as a guest; the choice persists for the
+  // browser session so the gate does not reappear on every reload.
+  const [isGuest, setIsGuest] = useState(false);
+
+  useEffect(() => {
+    try {
+      setIsGuest(window.sessionStorage.getItem("wyr:guest") === "1");
+    } catch {
+      // Session storage may be unavailable; the gate just reappears.
+    }
+  }, []);
+
+  const handlePlayAsGuest = useCallback(() => {
+    try {
+      window.sessionStorage.setItem("wyr:guest", "1");
+    } catch {
+      // Ignore; guest mode still applies for this render.
+    }
+    setIsGuest(true);
+  }, []);
+
   const [status, setStatus] = useState<GameStatus>("loading");
   const [selectedMode, setSelectedMode] = useState<GameModeOption | null>(null);
   const [question, setQuestion] = useState<Question | null>(null);
@@ -299,11 +324,19 @@ export default function Home() {
     status
   ]);
 
+  const showGate = isLoaded && !isSignedIn && !isGuest;
+
   return (
     <main className="min-h-screen pb-10">
       <GameHeader />
       <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
-        {content}
+        {!isLoaded ? (
+          <LoadingState />
+        ) : showGate ? (
+          <AuthGate onPlayAsGuest={handlePlayAsGuest} />
+        ) : (
+          content
+        )}
       </div>
     </main>
   );

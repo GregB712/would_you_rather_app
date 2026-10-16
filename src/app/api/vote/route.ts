@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import type { Choice } from "@/types/game";
 
@@ -43,6 +44,10 @@ export async function POST(request: Request) {
     const questionId = body.questionId.trim();
     const selectedChoice = body.choice;
 
+    // Votes are counted from guests and signed-in users alike. For signed-in
+    // users we also record the question as seen so it is not shown again.
+    const { userId } = await auth();
+
     const question = await prisma.$transaction(async (tx) => {
       const activeQuestion = await tx.question.findFirst({
         where: {
@@ -71,7 +76,7 @@ export async function POST(request: Request) {
         throw new ApiError("This question is no longer active.", 409);
       }
 
-      return tx.question.update({
+      const updated = await tx.question.update({
         where: {
           id: questionId
         },
@@ -96,6 +101,24 @@ export async function POST(request: Request) {
           mode: true
         }
       });
+
+      if (userId) {
+        await tx.seenQuestion.upsert({
+          where: {
+            userId_questionId: {
+              userId,
+              questionId
+            }
+          },
+          create: {
+            userId,
+            questionId
+          },
+          update: {}
+        });
+      }
+
+      return updated;
     });
 
     return NextResponse.json({ question, selectedChoice });

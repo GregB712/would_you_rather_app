@@ -38,6 +38,44 @@ For a local PostgreSQL database without SSL, your URL may look like:
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/would_you_rather"
 ```
 
+## Authentication (Clerk)
+
+Auth is handled by [Clerk](https://clerk.com). Sign up/in supports email and
+Google, and there is a "Play as guest" option for playing without an account.
+
+Setup:
+
+1. Create a Clerk application at https://dashboard.clerk.com.
+2. In the Clerk dashboard, enable the **Email** and **Google** sign-in methods.
+3. Copy the API keys into `.env`:
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+```
+
+4. Apply the database migration that adds the per-user seen-question table:
+
+```bash
+npm run prisma:migrate   # local
+# or
+npm run prisma:deploy    # production
+```
+
+Behavior:
+
+- **Guest** (not signed in): questions can repeat (recent ones are softly
+  de-duplicated client-side only).
+- **Signed-in user**: a question is marked seen once the user votes on it and is
+  not shown again until the pool is refreshed. When every question has been
+  seen, the game shows an empty state linking to the profile.
+- **Voting** is counted from both guests and signed-in users.
+- **Profile** (`/profile`, requires sign-in): shows name and email, lets the
+  user change their password, delete their account, and refresh their pool.
+
+The game, the vote endpoint, and the random-question endpoint stay public;
+`clerkMiddleware` only protects `/profile`.
+
 ## Run PostgreSQL Locally
 
 One simple Docker option:

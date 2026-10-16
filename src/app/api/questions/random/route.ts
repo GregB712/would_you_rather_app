@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 import { isPlayMode } from "@/lib/gameModes";
 import { prisma } from "@/lib/prisma";
 import type { PlayMode, Question } from "@/types/game";
@@ -21,20 +22,36 @@ function parseExcludedIds(value: string | null) {
     .slice(0, MAX_EXCLUDED_IDS);
 }
 
-async function queryRandomQuestion(mode: PlayMode, excludedIds: string[]) {
+async function queryRandomQuestion(
+  mode: PlayMode,
+  excludedIds: string[],
+  userId: string | null
+) {
   const conditions = [Prisma.sql`"isActive" = true`];
 
   if (mode !== "RANDOM") {
     conditions.push(Prisma.sql`"mode" = ${mode}::"QuestionMode"`);
   }
 
+  if (userId) {
+    // Signed-in users never see a question they have already voted on.
+    conditions.push(
+      Prisma.sql`NOT EXISTS (
+        SELECT 1 FROM "SeenQuestion" s
+        WHERE s."questionId" = "Question"."id" AND s."userId" = ${userId}
+      )`
+    );
+  }
+
+  // A soft, client-provided de-duplication of recently served questions. It
+  // applies to everyone, so a prefetched "next" never repeats the current one.
   if (excludedIds.length > 0) {
     conditions.push(Prisma.sql`"id" NOT IN (${Prisma.join(excludedIds)})`);
   }
 
-  // A single query picks a random matching row, halving the per-question
-  // round trips compared to a separate count + skip. random() sorts only the
-  // already-filtered (isActive/mode) subset, which stays small for this app.
+  // A single query picks a random matching row, halving the per-question round
+  // trips compared to a separate count + skip. random() sorts only the already
+  // filtered subset, which stays small for this app.
   const rows = await prisma.$queryRaw<Question[]>(Prisma.sql`
     SELECT "id", "optionA", "optionB", "votesA", "votesB", "mode"
     FROM "Question"
@@ -46,11 +63,18 @@ async function queryRandomQuestion(mode: PlayMode, excludedIds: string[]) {
   return rows[0] ?? null;
 }
 
-async function getRandomQuestion(mode: PlayMode, excludedIds: string[]) {
-  const question = await queryRandomQuestion(mode, excludedIds);
+async function getRandomQuestion(
+  mode: PlayMode,
+  excludedIds: string[],
+  userId: string | null
+) {
+  const question = await queryRandomQuestion(mode, excludedIds, userId);
 
-  if (!question && excludedIds.length > 0) {
-    return queryRandomQuestion(mode, []);
+  // Guests fall back to ignoring their local exclusions when the pool is
+  // otherwise empty. Signed-in users do not fall back: an empty result means
+  // they have seen everything and should refresh their pool.
+  if (!question && !userId && excludedIds.length > 0) {
+    return queryRandomQuestion(mode, [], userId);
   }
 
   return question;
@@ -68,8 +92,9 @@ export async function GET(request: Request) {
       );
     }
 
+    const { userId } = await auth();
     const excludedIds = parseExcludedIds(url.searchParams.get("exclude"));
-    const question = await getRandomQuestion(mode, excludedIds);
+    const question = await getRandomQuestion(mode, excludedIds, userId);
 
     return NextResponse.json({ question });
   } catch (error) {

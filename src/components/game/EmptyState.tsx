@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Show } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
@@ -20,6 +22,15 @@ export function EmptyState({ onRetry, onChangeMode, modeLabel }: EmptyStateProps
         Seed the database or insert a row into the Question table with two options
         and isActive set to true for this mode.
       </p>
+      <Show when="signed-in">
+        <p className="mt-3 text-base font-semibold leading-relaxed text-[#4d463a]">
+          You may have seen them all. Open your{" "}
+          <Link className="underline decoration-[#2f8f83] decoration-2" href="/profile">
+            profile
+          </Link>{" "}
+          and refresh your pool to bring every question back.
+        </p>
+      </Show>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         {onChangeMode ? (
           <Button onClick={onChangeMode} variant="primary">

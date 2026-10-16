@@ -27,9 +27,9 @@ export function OptionButton({
   return (
     <button
       className={cn(
-        "group flex min-h-48 w-full flex-col justify-between rounded-md border-2 border-[#111111] bg-white p-5 text-left shadow-[8px_8px_0_#111111] transition focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#f5c84c]",
+        "group flex min-h-44 w-full flex-col justify-between rounded-md border-2 border-[#111111] bg-white p-5 text-left shadow-[6px_6px_0_#111111] transition focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#f5c84c] sm:min-h-48 sm:shadow-[8px_8px_0_#111111]",
         !hasVoted &&
-          "hover:-translate-y-1 hover:bg-[#fff1bf] hover:shadow-[10px_12px_0_#111111]",
+          "hover:-translate-y-1 hover:bg-[#fff1bf] hover:shadow-[10px_12px_0_#111111] active:translate-y-0.5 active:shadow-[3px_3px_0_#111111]",
         selected && "bg-[#ffe0d7]",
         disabled && "cursor-not-allowed"
       )}

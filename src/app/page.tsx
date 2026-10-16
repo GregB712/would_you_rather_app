@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/game/EmptyState";
 import { ErrorState } from "@/components/game/ErrorState";
 import { GameHeader } from "@/components/game/GameHeader";
@@ -66,45 +66,76 @@ export default function Home() {
   const [isVoting, setIsVoting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Holds the next question fetched in the background so "Next question" is
+  // instant. A ref (not state) tracks the active mode so a prefetch that
+  // resolves after the player switches modes is discarded.
+  const [prefetched, setPrefetched] = useState<Question | null>(null);
+  const activeModeRef = useRef<PlayMode | null>(null);
+
+  useEffect(() => {
+    activeModeRef.current = selectedMode?.value ?? null;
+  }, [selectedMode]);
+
+  const fetchRandomQuestion = useCallback(async (mode: PlayMode) => {
+    const recentIds = readRecentQuestionIds(mode);
+    const params = new URLSearchParams({ mode });
+
+    if (recentIds.length > 0) {
+      params.set("exclude", recentIds.join(","));
+    }
+
+    const response = await fetch(`/api/questions/random?${params.toString()}`, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(await readApiError(response));
+    }
+
+    const data = (await response.json()) as RandomQuestionResponse;
+    return data.question;
+  }, []);
+
+  const prefetchNext = useCallback(
+    async (mode: PlayMode) => {
+      try {
+        const next = await fetchRandomQuestion(mode);
+
+        if (next && activeModeRef.current === mode) {
+          setPrefetched(next);
+        }
+      } catch {
+        // Prefetch is best-effort; a failure just falls back to a live load.
+      }
+    },
+    [fetchRandomQuestion]
+  );
+
   const loadQuestion = useCallback(async () => {
     if (!selectedMode) {
       return;
     }
 
+    const mode = selectedMode.value;
     setStatus("loading");
     setSelectedChoice(null);
     setIsVoting(false);
     setErrorMessage("");
+    setPrefetched(null);
 
     try {
-      const recentIds = readRecentQuestionIds(selectedMode.value);
-      const params = new URLSearchParams({
-        mode: selectedMode.value
-      });
+      const next = await fetchRandomQuestion(mode);
 
-      if (recentIds.length > 0) {
-        params.set("exclude", recentIds.join(","));
-      }
-
-      const response = await fetch(`/api/questions/random?${params.toString()}`, {
-        cache: "no-store"
-      });
-
-      if (!response.ok) {
-        throw new Error(await readApiError(response));
-      }
-
-      const data = (await response.json()) as RandomQuestionResponse;
-
-      if (!data.question) {
+      if (!next) {
         setQuestion(null);
         setStatus("empty");
         return;
       }
 
-      rememberQuestionId(selectedMode.value, data.question.id);
-      setQuestion(data.question);
+      rememberQuestionId(mode, next.id);
+      setQuestion(next);
       setStatus("ready");
+      void prefetchNext(mode);
     } catch (error) {
       setQuestion(null);
       setErrorMessage(
@@ -112,7 +143,7 @@ export default function Home() {
       );
       setStatus("error");
     }
-  }, [selectedMode]);
+  }, [selectedMode, fetchRandomQuestion, prefetchNext]);
 
   useEffect(() => {
     if (selectedMode) {
@@ -120,12 +151,31 @@ export default function Home() {
     }
   }, [loadQuestion, selectedMode]);
 
+  const handleNext = useCallback(() => {
+    if (!selectedMode || !prefetched) {
+      void loadQuestion();
+      return;
+    }
+
+    const next = prefetched;
+    const mode = selectedMode.value;
+    setPrefetched(null);
+    setSelectedChoice(null);
+    setIsVoting(false);
+    setErrorMessage("");
+    rememberQuestionId(mode, next.id);
+    setQuestion(next);
+    setStatus("ready");
+    void prefetchNext(mode);
+  }, [selectedMode, prefetched, loadQuestion, prefetchNext]);
+
   const handleSelectMode = useCallback((mode: GameModeOption) => {
     setSelectedMode(mode);
     setQuestion(null);
     setSelectedChoice(null);
     setIsVoting(false);
     setErrorMessage("");
+    setPrefetched(null);
     setStatus("loading");
   }, []);
 
@@ -135,6 +185,7 @@ export default function Home() {
     setSelectedChoice(null);
     setIsVoting(false);
     setErrorMessage("");
+    setPrefetched(null);
     setStatus("loading");
   }, []);
 
@@ -222,7 +273,7 @@ export default function Home() {
           isVoting={isVoting}
           mode={getGameModeOption(selectedMode.value)}
           onChangeMode={handleChangeMode}
-          onNext={loadQuestion}
+          onNext={handleNext}
           onVote={handleVote}
           question={question}
           selectedChoice={selectedChoice}
@@ -237,6 +288,7 @@ export default function Home() {
   }, [
     errorMessage,
     handleChangeMode,
+    handleNext,
     handleSelectMode,
     handleVote,
     isVoting,

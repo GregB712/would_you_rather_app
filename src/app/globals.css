@@ -1,8 +1,85 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design tokens. Values follow Apple's system palette; every token has a
+   dark-mode counterpart so the whole UI adapts with prefers-color-scheme.
+   --------------------------------------------------------------------------- */
 :root {
-  --background: #f4ead2;
-  --foreground: #111111;
+  color-scheme: light dark;
+
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --fill: rgba(120, 120, 128, 0.12);
+  --fill-strong: rgba(120, 120, 128, 0.2);
+  --label: #1d1d1f;
+  --label-2: #6e6e73;
+  --label-3: #86868b;
+  --separator: rgba(60, 60, 67, 0.16);
+
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --choice-a: #007aff;
+  --choice-b: #ff9500;
+  --green: #34c759;
+  --indigo: #5856d6;
+  --orange: #ff9500;
+  --danger: #d70015;
+  --danger-fill: #ff3b30;
+
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.06);
+  --card-shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.04), 0 18px 44px rgba(0, 0, 0, 0.1);
+
+  /* Apple's "default" ease-out: fast start, long soft settle. */
+  --ease-out-soft: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --fill: rgba(118, 118, 128, 0.24);
+    --fill-strong: rgba(118, 118, 128, 0.32);
+    --label: #f5f5f7;
+    --label-2: #a1a1a6;
+    --label-3: #8e8e93;
+    --separator: rgba(84, 84, 88, 0.6);
+
+    --accent: #2997ff;
+    --accent-hover: #47a6ff;
+    --choice-a: #0a84ff;
+    --choice-b: #ff9f0a;
+    --green: #30d158;
+    --indigo: #5e5ce6;
+    --orange: #ff9f0a;
+    --danger: #ff6961;
+    --danger-fill: #ff453a;
+
+    --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --card-shadow-lift: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 18px 44px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fill: var(--fill);
+  --color-fill-strong: var(--fill-strong);
+  --color-label: var(--label);
+  --color-label-2: var(--label-2);
+  --color-label-3: var(--label-3);
+  --color-separator: var(--separator);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-choice-a: var(--choice-a);
+  --color-choice-b: var(--choice-b);
+  --color-green: var(--green);
+  --color-indigo: var(--indigo);
+  --color-orange: var(--orange);
+  --color-danger: var(--danger);
+  --color-danger-fill: var(--danger-fill);
+  --ease-soft: var(--ease-out-soft);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 
 * {
@@ -13,29 +90,113 @@ html {
   min-height: 100%;
   /* Stop iOS Safari from auto-inflating text in landscape. */
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   min-height: 100%;
   margin: 0;
-  /* The brutalist offset shadows and the rotated header note sit a few px
-     past their boxes; this keeps them from triggering horizontal scroll on
-     narrow phones. */
-  overflow-x: hidden;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(245, 200, 76, 0.55), transparent 26rem),
-    radial-gradient(circle at 88% 10%, rgba(159, 216, 203, 0.65), transparent 22rem),
-    linear-gradient(135deg, rgba(17, 17, 17, 0.05) 25%, transparent 25%) 0 0 / 24px 24px,
-    var(--background);
-  color: var(--foreground);
-  font-family: ui-sans-serif, "Avenir Next", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--label);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
-  background: #f5c84c;
-  color: #111111;
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 button {
   font: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Materials
+   --------------------------------------------------------------------------- */
+
+/* Translucent navigation bar; content scrolls underneath it. */
+.material-bar {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid var(--separator);
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------------------- */
+
+/* Content arrives with a short rise + fade, never a hard pop. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise-in 520ms var(--ease-out-soft) both;
+}
+
+.animate-rise-delayed {
+  animation: rise-in 520ms var(--ease-out-soft) 70ms both;
+}
+
+.animate-rise-delayed-2 {
+  animation: rise-in 520ms var(--ease-out-soft) 140ms both;
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibility preferences
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delayed,
+  .animate-rise-delayed-2 {
+    animation: fade-in 200ms ease both;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .material-bar {
+    background: var(--bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --label-2: var(--label);
+    --separator: var(--label);
+    --card-shadow: 0 0 0 1px var(--label);
+    --card-shadow-lift: 0 0 0 2px var(--label);
+  }
 }

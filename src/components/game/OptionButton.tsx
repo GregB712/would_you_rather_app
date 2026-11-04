@@ -12,6 +12,19 @@ type OptionButtonProps = {
   onSelect: (choice: Choice) => void;
 };
 
+const choiceStyles: Record<Choice, { badge: string; tint: string; ring: string }> = {
+  A: {
+    badge: "bg-choice-a/15 text-choice-a",
+    tint: "bg-choice-a/[0.07]",
+    ring: "ring-choice-a"
+  },
+  B: {
+    badge: "bg-choice-b/15 text-choice-b",
+    tint: "bg-choice-b/[0.08]",
+    ring: "ring-choice-b"
+  }
+};
+
 export function OptionButton({
   choice,
   label,
@@ -23,40 +36,56 @@ export function OptionButton({
 }: OptionButtonProps) {
   const hasVoted = selectedChoice !== null;
   const selected = selectedChoice === choice;
+  const style = choiceStyles[choice];
 
   return (
     <button
+      aria-pressed={selected}
       className={cn(
-        "group flex min-h-44 w-full flex-col justify-between rounded-md border-2 border-[#111111] bg-white p-5 text-left shadow-[6px_6px_0_#111111] transition focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-[#f5c84c] sm:min-h-48 sm:shadow-[8px_8px_0_#111111]",
+        "group flex min-h-40 w-full flex-col rounded-[22px] p-5 text-left transition-[transform,background-color,opacity,box-shadow] duration-300 ease-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:min-h-52 sm:p-6",
+        hasVoted ? style.tint : "bg-fill",
         !hasVoted &&
-          "hover:-translate-y-1 hover:bg-[#fff1bf] hover:shadow-[10px_12px_0_#111111] active:translate-y-0.5 active:shadow-[3px_3px_0_#111111]",
-        selected && "bg-[#ffe0d7]",
-        disabled && "cursor-not-allowed"
+          "hover:bg-fill-strong active:scale-[0.98] active:duration-100",
+        selected && cn("ring-2 ring-inset", style.ring),
+        hasVoted && !selected && "opacity-75",
+        disabled && !hasVoted && "cursor-progress"
       )}
       disabled={disabled}
       onClick={() => onSelect(choice)}
       type="button"
     >
       <span className="flex items-center justify-between gap-3">
-        <span className="rounded-full border-2 border-[#111111] bg-[#f5c84c] px-3 py-1 text-xs font-black uppercase tracking-[0.14em]">
-          Option {choice}
+        <span
+          className={cn(
+            "flex size-8 items-center justify-center rounded-full text-[15px] font-bold",
+            style.badge
+          )}
+        >
+          {choice}
         </span>
         {selected ? (
-          <span className="rounded-full bg-[#111111] px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white">
-            Selected
+          <span className="flex items-center gap-1 text-[13px] font-semibold text-label">
+            <svg
+              aria-hidden="true"
+              className="size-4"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.4}
+              viewBox="0 0 16 16"
+            >
+              <path d="m3.5 8.5 3 3 6-7" />
+            </svg>
+            Your pick
           </span>
         ) : null}
       </span>
-      <span className="mt-6 block text-2xl font-black leading-tight text-[#111111] sm:text-3xl">
+      <span className="mt-5 block text-[22px] font-semibold leading-snug tracking-[-0.02em] text-label sm:text-[26px]">
         {label}
       </span>
       {hasVoted ? (
-        <ResultsBar
-          choice={choice}
-          selected={selected}
-          totalVotes={totalVotes}
-          votes={votes}
-        />
+        <ResultsBar choice={choice} totalVotes={totalVotes} votes={votes} />
       ) : null}
     </button>
   );

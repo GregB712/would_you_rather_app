@@ -10,21 +10,19 @@ type AuthGateProps = {
 
 export function AuthGate({ onPlayAsGuest }: AuthGateProps) {
   return (
-    <Card className="mx-auto w-full max-w-5xl p-5 sm:p-7">
-      <div className="mb-7 max-w-3xl">
-        <p className="text-sm font-black uppercase tracking-[0.16em] text-[#d64f2f]">
-          Before you play
-        </p>
-        <h2 className="mt-2 text-3xl font-black leading-tight text-[#111111] sm:text-4xl">
-          Sign in to keep every question fresh.
-        </h2>
-        <p className="mt-3 text-base font-semibold leading-relaxed text-[#4d463a]">
-          Signed in, you never see a question twice until you refresh your pool.
-          Or jump straight in as a guest, where questions can repeat.
-        </p>
-      </div>
+    <Card className="animate-rise mx-auto w-full max-w-2xl px-6 py-10 text-center sm:px-12 sm:py-14">
+      <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-label-2">
+        Before you play
+      </p>
+      <h2 className="mt-2 text-[28px] font-bold leading-tight tracking-[-0.025em] text-label sm:text-[34px]">
+        Sign in to keep every question fresh.
+      </h2>
+      <p className="mx-auto mt-3 max-w-md text-[17px] leading-relaxed text-label-2">
+        Signed in, you never see a question twice until you refresh your pool.
+        As a guest, questions can repeat.
+      </p>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <div className="mx-auto mt-8 flex max-w-sm flex-col gap-2">
         <SignInButton mode="modal">
           <Button variant="primary">Sign in</Button>
         </SignInButton>

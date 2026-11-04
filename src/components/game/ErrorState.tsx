@@ -13,16 +13,33 @@ export function ErrorState({
   onChangeMode
 }: ErrorStateProps) {
   return (
-    <Card className="mx-auto w-full max-w-3xl p-6 sm:p-8">
-      <p className="mb-2 text-sm font-black uppercase tracking-[0.16em] text-[#d64f2f]">
-        Something got stuck
-      </p>
-      <h2 className="text-3xl font-black text-[#111111]">Try that again.</h2>
-      <p className="mt-3 text-base font-semibold leading-relaxed text-[#4d463a]">
+    <Card
+      className="animate-rise mx-auto w-full max-w-2xl px-6 py-10 text-center sm:px-10 sm:py-12"
+      role="alert"
+    >
+      <span
+        aria-hidden="true"
+        className="mx-auto flex size-12 items-center justify-center rounded-full bg-danger-fill/15 text-danger"
+      >
+        <svg
+          className="size-6"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 7.5v5.5M12 16.5v.01" />
+        </svg>
+      </span>
+      <h2 className="mt-4 text-[28px] font-bold leading-tight tracking-[-0.025em] text-label">
+        Something got stuck.
+      </h2>
+      <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-label-2">
         {message}
       </p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button onClick={onRetry}>Retry</Button>
+      <div className="mt-8 flex flex-col justify-center gap-2 sm:flex-row">
+        <Button onClick={onRetry}>Try again</Button>
         {onChangeMode ? (
           <Button onClick={onChangeMode} variant="secondary">
             Back to modes

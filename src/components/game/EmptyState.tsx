@@ -11,27 +11,27 @@ type EmptyStateProps = {
 
 export function EmptyState({ onRetry, onChangeMode, modeLabel }: EmptyStateProps) {
   return (
-    <Card className="mx-auto w-full max-w-3xl p-6 sm:p-8">
-      <p className="mb-2 text-sm font-black uppercase tracking-[0.16em] text-[#2f8f83]">
+    <Card className="animate-rise mx-auto w-full max-w-2xl px-6 py-10 text-center sm:px-10 sm:py-12">
+      <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-label-2">
         {modeLabel ? `${modeLabel} is empty` : "The question box is empty"}
       </p>
-      <h2 className="text-3xl font-black text-[#111111]">
-        No questions are available for this mode yet.
+      <h2 className="mt-2 text-[28px] font-bold leading-tight tracking-[-0.025em] text-label">
+        No questions available yet.
       </h2>
-      <p className="mt-3 text-base font-semibold leading-relaxed text-[#4d463a]">
+      <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-label-2">
         Seed the database or insert a row into the Question table with two options
         and isActive set to true for this mode.
       </p>
       <Show when="signed-in">
-        <p className="mt-3 text-base font-semibold leading-relaxed text-[#4d463a]">
+        <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-label-2">
           You may have seen them all. Open your{" "}
-          <Link className="underline decoration-[#2f8f83] decoration-2" href="/profile">
+          <Link className="font-medium text-accent hover:underline" href="/profile">
             profile
           </Link>{" "}
           and refresh your pool to bring every question back.
         </p>
       </Show>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-8 flex flex-col justify-center gap-2 sm:flex-row">
         {onChangeMode ? (
           <Button onClick={onChangeMode} variant="primary">
             Back to modes

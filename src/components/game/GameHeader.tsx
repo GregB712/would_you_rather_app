@@ -1,45 +1,66 @@
 import Link from "next/link";
 import { Show, SignInButton, SignOutButton } from "@clerk/nextjs";
 
-const authLinkClass =
-  "rounded-md border-2 border-[#111111] bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.1em] text-[#111111] shadow-[3px_3px_0_#111111] transition hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0_#111111]";
+const barLinkClass =
+  "rounded-full px-3 py-1.5 text-[13px] font-medium text-accent transition-[transform,background-color] duration-150 hover:bg-fill active:scale-[0.96] active:duration-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function GameHeader() {
   return (
-    <header className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-5 pt-6 sm:px-8 sm:pt-10">
-      <div className="flex items-center justify-end gap-3">
-        <Show when="signed-out">
-          <SignInButton mode="modal">
-            <button className={authLinkClass} type="button">
-              Sign in
-            </button>
-          </SignInButton>
-        </Show>
-        <Show when="signed-in">
-          <Link className={authLinkClass} href="/profile">
-            Profile
+    <>
+      <nav className="material-bar sticky top-0 z-20 pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex h-12 w-full max-w-5xl items-center justify-between gap-3 px-5 sm:px-8">
+          <Link
+            className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.01em] text-label"
+            href="/"
+          >
+            <AppGlyph />
+            Would You Rather
           </Link>
-          <SignOutButton>
-            <button className={authLinkClass} type="button">
-              Sign out
-            </button>
-          </SignOutButton>
-        </Show>
-      </div>
+          <div className="flex items-center gap-1">
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <button className={barLinkClass} type="button">
+                  Sign in
+                </button>
+              </SignInButton>
+            </Show>
+            <Show when="signed-in">
+              <Link className={barLinkClass} href="/profile">
+                Profile
+              </Link>
+              <SignOutButton>
+                <button className={barLinkClass} type="button">
+                  Sign out
+                </button>
+              </SignOutButton>
+            </Show>
+          </div>
+        </div>
+      </nav>
 
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-[#111111] pb-5">
-        <div>
-          <p className="mb-2 w-fit bg-[#f5c84c] px-2 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#111111]">
-            One question. Two futures.
-          </p>
-          <h1 className="max-w-3xl font-serif text-4xl font-black leading-[0.95] text-[#111111] sm:text-7xl sm:leading-[0.92]">
-            Would You Rather?
-          </h1>
-        </div>
-        <div className="max-w-full rotate-[-2deg] border-2 border-[#111111] bg-[#9fd8cb] px-4 py-3 text-sm font-bold leading-tight text-[#111111] shadow-[6px_6px_0_#111111] sm:max-w-48">
-          Vote, compare the room, then pull another dilemma.
-        </div>
-      </div>
-    </header>
+      <header className="animate-rise mx-auto w-full max-w-5xl px-5 pt-10 sm:px-8 sm:pt-16">
+        <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-label-2">
+          One question. Two futures.
+        </p>
+        <h1 className="mt-2 text-[clamp(2.5rem,7vw,4.5rem)] font-bold leading-[1.02] tracking-[-0.035em] text-label">
+          Would you rather?
+        </h1>
+        <p className="mt-3 max-w-xl text-[17px] leading-relaxed text-label-2 sm:text-[19px]">
+          Vote, see how everyone else split, then pull another dilemma.
+        </p>
+      </header>
+    </>
+  );
+}
+
+function AppGlyph() {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-6 overflow-hidden rounded-[7px] shadow-[inset_0_0_0_0.5px_rgba(0,0,0,0.1)]"
+    >
+      <span className="h-full w-1/2 bg-choice-a" />
+      <span className="h-full w-1/2 bg-choice-b" />
+    </span>
   );
 }

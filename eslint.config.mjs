@@ -16,7 +16,8 @@ const eslintConfig = [
       "node_modules/**",
       "next-env.d.ts",
       "coverage/**",
-      "dist/**"
+      "dist/**",
+      "clerk-nextjs/**"
     ]
   },
   ...compat.extends("next/core-web-vitals", "next/typescript")

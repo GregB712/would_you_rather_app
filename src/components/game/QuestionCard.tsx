@@ -25,27 +25,26 @@ export function QuestionCard({
   const totalVotes = question.votesA + question.votesB;
 
   return (
-    <Card className="mx-auto w-full max-w-5xl p-5 sm:p-7">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-black uppercase tracking-[0.16em] text-[#d64f2f]">
-            Would you rather...
-          </p>
-          <h2 className="mt-2 text-2xl font-black leading-tight text-[#111111] sm:text-3xl">
-            Pick one path. Results unlock after your vote.
-          </h2>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-          <span className="rounded-full border-2 border-[#111111] bg-[#9fd8cb] px-3 py-1 text-xs font-black uppercase tracking-[0.12em]">
+    <Card className="animate-rise mx-auto w-full max-w-5xl p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-2 pt-1 sm:mb-5">
+        <h2 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-label-2">
+          Would you rather…
+        </h2>
+        <div className="flex items-center gap-2 text-[13px] text-label-2">
+          <span className="rounded-full bg-fill px-2.5 py-1 font-medium text-label">
             {mode.label}
           </span>
-          <p className="text-sm font-bold text-[#4d463a]">
-            {totalVotes} {totalVotes === 1 ? "vote" : "votes"} counted
-          </p>
+          <span className="tabular-nums">
+            {totalVotes.toLocaleString()} {totalVotes === 1 ? "vote" : "votes"}
+          </span>
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      {/* Keyed by question so each new dilemma rises in fresh. */}
+      <div
+        className="animate-rise relative grid auto-rows-fr gap-3 sm:gap-4 md:grid-cols-2"
+        key={question.id}
+      >
         <OptionButton
           choice="A"
           disabled={isVoting || selectedChoice !== null}
@@ -64,17 +63,23 @@ export function QuestionCard({
           totalVotes={totalVotes}
           votes={question.votesB}
         />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-[12px] font-bold uppercase tracking-[0.04em] text-label-2 shadow-(--card-shadow)"
+        >
+          or
+        </span>
       </div>
 
-      <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="min-h-6 text-sm font-bold text-[#4d463a]">
+      <div className="mt-5 flex flex-col gap-3 px-2 pb-1 sm:flex-row sm:items-center sm:justify-between">
+        <p aria-live="polite" className="min-h-5 text-[15px] text-label-2">
           {isVoting
-            ? "Saving your vote..."
+            ? "Saving your vote…"
             : selectedChoice
               ? "The crowd has spoken. Ready for another?"
-              : "No switching after you choose."}
+              : "Choose carefully. No switching after you vote."}
         </p>
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+        <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
           <Button
             className="w-full sm:w-auto"
             disabled={isVoting}
@@ -89,7 +94,7 @@ export function QuestionCard({
             onClick={onNext}
             variant={selectedChoice ? "primary" : "secondary"}
           >
-            Next question
+            {selectedChoice ? "Next question" : "Skip"}
           </Button>
         </div>
       </div>

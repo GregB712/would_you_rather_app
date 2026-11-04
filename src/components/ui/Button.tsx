@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -9,12 +9,10 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variants: Record<ButtonVariant, string> = {
-  primary:
-    "bg-[#111111] text-white shadow-[0_14px_0_#d64f2f] hover:-translate-y-0.5 hover:shadow-[0_16px_0_#d64f2f] active:translate-y-1 active:shadow-[0_8px_0_#d64f2f]",
-  secondary:
-    "border-2 border-[#111111] bg-[#fff7df] text-[#111111] shadow-[0_8px_0_#111111] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_0_#111111]",
-  ghost:
-    "bg-transparent text-[#111111] underline decoration-[#2f8f83] decoration-2 underline-offset-4 hover:text-[#d64f2f]"
+  primary: "bg-accent text-white hover:bg-accent-hover",
+  secondary: "bg-fill text-label hover:bg-fill-strong",
+  ghost: "bg-transparent text-accent hover:bg-fill",
+  destructive: "bg-danger-fill text-white hover:brightness-110"
 };
 
 export function Button({
@@ -27,7 +25,8 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 text-sm font-black uppercase tracking-[0.08em] transition disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55",
+        // Feedback lands on press (scale on :active), not on release.
+        "inline-flex min-h-11 select-none items-center justify-center rounded-full px-5 py-2.5 text-[15px] font-semibold tracking-[-0.01em] transition-[transform,background-color,filter] duration-150 ease-out active:scale-[0.97] active:duration-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-45",
         variants[variant],
         className
       )}

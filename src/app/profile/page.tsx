@@ -43,9 +43,9 @@ export default function ProfilePage() {
 
   if (!isLoaded) {
     return (
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
+      <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-8">
         <Card className="p-6">
-          <div className="h-6 w-40 animate-pulse rounded bg-[#111111]/20" />
+          <div className="h-5 w-40 animate-pulse rounded-full bg-fill-strong" />
         </Card>
       </main>
     );
@@ -53,10 +53,10 @@ export default function ProfilePage() {
 
   if (!isSignedIn || !user) {
     return (
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
-        <Card className="p-6">
-          <p className="font-bold text-[#111111]">You need to sign in.</p>
-          <Link className="mt-4 inline-block underline" href="/">
+      <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-8">
+        <Card className="animate-rise p-6 text-center">
+          <p className="text-[17px] font-semibold text-label">You need to sign in.</p>
+          <Link className="mt-3 inline-block text-[15px] font-medium text-accent hover:underline" href="/">
             Back to the game
           </Link>
         </Card>
@@ -161,120 +161,145 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="font-serif text-4xl font-black leading-none text-[#111111] sm:text-5xl">
-          Your profile
-        </h1>
+    <main className="mx-auto w-full max-w-2xl px-4 pb-16 sm:px-8">
+      <nav className="pt-[max(1rem,env(safe-area-inset-top))]">
         <Link
-          className="rounded-md border-2 border-[#111111] bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.1em] shadow-[3px_3px_0_#111111]"
+          className="-ml-2 inline-flex items-center gap-0.5 rounded-full px-2 py-1.5 text-[17px] text-accent transition-[transform,background-color] duration-150 hover:bg-fill active:scale-[0.96] active:duration-75"
           href="/"
         >
-          Back to game
+          <svg
+            aria-hidden="true"
+            className="size-5"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.2}
+            viewBox="0 0 20 20"
+          >
+            <path d="M12.5 4.5 7 10l5.5 5.5" />
+          </svg>
+          Game
         </Link>
-      </div>
+      </nav>
 
-      <div className="space-y-5">
-        <Card className="p-5 sm:p-6">
-          <h2 className="text-lg font-black uppercase tracking-[0.08em] text-[#d64f2f]">
-            Account
-          </h2>
-          <dl className="mt-3 grid gap-2 text-[#111111]">
-            <div className="flex flex-wrap items-baseline gap-2">
-              <dt className="text-sm font-black uppercase tracking-[0.1em] text-[#4d463a]">
-                Name
-              </dt>
-              <dd className="text-base font-bold">{name}</dd>
-            </div>
-            <div className="flex flex-wrap items-baseline gap-2">
-              <dt className="text-sm font-black uppercase tracking-[0.1em] text-[#4d463a]">
-                Email
-              </dt>
-              <dd className="text-base font-bold">{email}</dd>
-            </div>
-          </dl>
-        </Card>
+      <header className="animate-rise mt-6 mb-8 flex items-center gap-4">
+        <span
+          aria-hidden="true"
+          className="flex size-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-choice-a to-indigo text-[26px] font-semibold text-white"
+        >
+          {name.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <h1 className="truncate text-[34px] font-bold leading-tight tracking-[-0.03em] text-label">
+            {name}
+          </h1>
+          <p className="truncate text-[15px] text-label-2">{email}</p>
+        </div>
+      </header>
 
-        <Card className="p-5 sm:p-6">
-          <h2 className="text-lg font-black uppercase tracking-[0.08em] text-[#d64f2f]">
-            Question pool
-          </h2>
-          <p className="mt-2 text-sm font-semibold leading-relaxed text-[#4d463a]">
-            Refreshing clears your seen history so every active question can
-            appear again.
-          </p>
-          <div className="mt-4">
+      <div className="space-y-8">
+        <Section
+          className="animate-rise-delayed"
+          footer="Refreshing clears your seen history so every active question can appear again."
+          title="Question pool"
+        >
+          <div className="flex items-center justify-between gap-4 p-4 sm:p-5">
+            <span className="text-[17px] text-label">Seen questions</span>
             <Button disabled={refreshing} onClick={handleRefreshPool} variant="secondary">
-              {refreshing ? "Refreshing..." : "Refresh pool"}
+              {refreshing ? "Refreshing…" : "Refresh pool"}
             </Button>
           </div>
           {poolBanner ? (
-            <p className={bannerClass(poolBanner.kind)}>{poolBanner.message}</p>
+            <p className={bannerClass(poolBanner.kind)} role="status">{poolBanner.message}</p>
           ) : null}
-        </Card>
+        </Section>
 
-        <Card className="p-5 sm:p-6">
-          <h2 className="text-lg font-black uppercase tracking-[0.08em] text-[#d64f2f]">
-            {hasPassword ? "Change password" : "Set a password"}
-          </h2>
-          <form className="mt-3 space-y-3" onSubmit={handleChangePassword}>
-            {hasPassword ? (
+        <Section
+          className="animate-rise-delayed"
+          title={hasPassword ? "Change password" : "Set a password"}
+        >
+          <form className="p-4 sm:p-5" onSubmit={handleChangePassword}>
+            <div className="space-y-3">
+              {hasPassword ? (
+                <PasswordField
+                  label="Current password"
+                  onChange={setCurrentPassword}
+                  value={currentPassword}
+                />
+              ) : null}
               <PasswordField
-                label="Current password"
-                onChange={setCurrentPassword}
-                value={currentPassword}
+                label="New password"
+                onChange={setNewPassword}
+                value={newPassword}
               />
-            ) : null}
-            <PasswordField
-              label="New password"
-              onChange={setNewPassword}
-              value={newPassword}
-            />
-            <PasswordField
-              label="Confirm new password"
-              onChange={setConfirmPassword}
-              value={confirmPassword}
-            />
-            <Button disabled={savingPassword} type="submit" variant="primary">
-              {savingPassword ? "Saving..." : "Update password"}
+              <PasswordField
+                label="Confirm new password"
+                onChange={setConfirmPassword}
+                value={confirmPassword}
+              />
+            </div>
+            <Button className="mt-5 w-full sm:w-auto" disabled={savingPassword} type="submit" variant="primary">
+              {savingPassword ? "Saving…" : "Update password"}
             </Button>
           </form>
           {passwordBanner ? (
-            <p className={bannerClass(passwordBanner.kind)}>{passwordBanner.message}</p>
+            <p className={bannerClass(passwordBanner.kind)} role="status">{passwordBanner.message}</p>
           ) : null}
-        </Card>
+        </Section>
 
-        <Card className="border-[#d64f2f] p-5 sm:p-6">
-          <h2 className="text-lg font-black uppercase tracking-[0.08em] text-[#d64f2f]">
-            Danger zone
-          </h2>
-          <p className="mt-2 text-sm font-semibold leading-relaxed text-[#4d463a]">
-            Deleting your account removes your sign-in and your seen history. Your
-            past votes stay counted.
-          </p>
-          <div className="mt-4">
+        <Section
+          className="animate-rise-delayed-2"
+          footer="Deleting your account removes your sign-in and your seen history. Your past votes stay counted."
+          title="Danger zone"
+        >
+          <div className="p-4 sm:p-5">
             <Button
-              className="border-2 border-[#111111] bg-[#d64f2f] text-white shadow-[0_8px_0_#111111] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_0_#111111]"
+              className="w-full sm:w-auto"
               disabled={deleting}
               onClick={handleDeleteAccount}
-              variant="secondary"
+              variant="destructive"
             >
-              {deleting ? "Deleting..." : "Delete account"}
+              {deleting ? "Deleting…" : "Delete account"}
             </Button>
           </div>
           {deleteBanner ? (
-            <p className={bannerClass(deleteBanner.kind)}>{deleteBanner.message}</p>
+            <p className={bannerClass(deleteBanner.kind)} role="alert">{deleteBanner.message}</p>
           ) : null}
-        </Card>
+        </Section>
       </div>
     </main>
   );
 }
 
+function Section({
+  title,
+  footer,
+  className,
+  children
+}: {
+  title: string;
+  footer?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={className}>
+      <h2 className="mb-2 px-4 text-[13px] font-medium uppercase tracking-[0.04em] text-label-2">
+        {title}
+      </h2>
+      <Card className="overflow-hidden rounded-[20px]">{children}</Card>
+      {footer ? (
+        <p className="mt-2 px-4 text-[13px] leading-relaxed text-label-2">{footer}</p>
+      ) : null}
+    </div>
+  );
+}
+
 function bannerClass(kind: "ok" | "error") {
   return [
-    "mt-4 rounded-md border-2 border-[#111111] px-4 py-3 text-sm font-black text-[#111111] shadow-[4px_4px_0_#111111]",
-    kind === "ok" ? "bg-[#9fd8cb]" : "bg-[#ffe0d7]"
+    "mx-4 mb-4 rounded-xl px-4 py-3 text-[15px] font-medium sm:mx-5 sm:mb-5",
+    kind === "ok" ? "bg-green/15 text-label" : "bg-danger-fill/12 text-danger"
   ].join(" ");
 }
 
@@ -289,12 +314,10 @@ function PasswordField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-black uppercase tracking-[0.1em] text-[#4d463a]">
-        {label}
-      </span>
+      <span className="mb-1.5 block text-[13px] font-medium text-label-2">{label}</span>
       <input
         autoComplete="new-password"
-        className="w-full rounded-md border-2 border-[#111111] bg-white px-3 py-2 text-base font-bold text-[#111111] shadow-[3px_3px_0_#111111] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#f5c84c]"
+        className="w-full rounded-xl bg-fill px-4 py-3 text-[17px] text-label outline-none transition-shadow duration-150 placeholder:text-label-3 focus-visible:ring-2 focus-visible:ring-accent"
         onChange={(event) => onChange(event.target.value)}
         type="password"
         value={value}

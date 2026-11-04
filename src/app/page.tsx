@@ -304,7 +304,10 @@ export default function Home() {
           selectedChoice={selectedChoice}
         />
         {errorMessage ? (
-          <p className="mx-auto max-w-5xl rounded-md border-2 border-[#111111] bg-[#ffe0d7] px-4 py-3 text-sm font-black text-[#111111] shadow-[6px_6px_0_#111111]">
+          <p
+            className="animate-rise mx-auto max-w-5xl rounded-2xl bg-danger-fill/12 px-5 py-3.5 text-[15px] font-medium text-danger"
+            role="alert"
+          >
             {errorMessage}
           </p>
         ) : null}
@@ -327,9 +330,9 @@ export default function Home() {
   const showGate = isLoaded && !isSignedIn && !isGuest;
 
   return (
-    <main className="min-h-screen pb-10">
+    <main className="min-h-screen pb-[max(3rem,env(safe-area-inset-bottom))]">
       <GameHeader />
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-8 sm:py-12">
         {!isLoaded ? (
           <LoadingState />
         ) : showGate ? (
